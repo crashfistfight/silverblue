@@ -1,0 +1,33 @@
+#! /usr/bin/env bash
+
+# shellcheck disable=SC2154
+
+# create ssh config
+tee /etc/ssh/sshd_config.d/10-secure.conf > /dev/null <<EOF
+PermitRootLogin no
+PubkeyAuthentication yes
+PasswordAuthentication no
+X11Forwarding no
+EOF
+
+# disable service on next boot
+systemctl disable sshd.service
+
+# enable socket activation on next boot
+systemctl enable sshd.socket
+
+
+# create  ssh dir if not present
+mkdir --parents /var/home/"$user"/.ssh
+
+# set authorized keys
+tee /var/home/"$user"/.ssh/authorized_keys > /dev/null <<EOF
+$(printf "%s\n" "${ssh_keys[@]}")
+EOF
+
+# fix permissions
+chmod 600 /var/home/"$user"/.ssh/authorized_keys
+chmod 700 /var/home/"$user"/.ssh
+
+# cleanup temporary variables
+unset ssh_keys

@@ -1,0 +1,4 @@
+#! /usr/bin/env bash
+
+# change host to headless
+systemctl set-default multi-user.target

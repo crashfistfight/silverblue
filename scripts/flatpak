@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+
+# shellcheck disable=SC2154
+
+# enable flathub repo
+flatpak remote-modify --enable flathub
+
+# install unfiltered flathub repo
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+# replace fedora flatpaks
+flatpak list --app-runtime=org.fedoraproject.Platform --columns=application | while read -r app; do
+    flatpak install --noninteractive --assumeyes --reinstall flathub "$app"
+done
+
+flatpak uninstall --noninteractive --assumeyes org.fedoraproject.Platform
+flatpak remote-delete --force fedora
+
+# install flatpaks from array
+flatpak install --noninteractive --or-update --assumeyes flathub "${flatpaks[@]}"
+
+# cleanup temporary variables
+unset flatpaks

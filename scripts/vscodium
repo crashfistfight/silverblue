@@ -1,0 +1,28 @@
+#! /usr/bin/env bash
+
+# shellcheck disable=SC2154
+
+# install flathub repo
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+# install flatpak
+flatpak install --assumeyes --noninteractive --or-update flathub 'com.vscodium.codium'
+
+# fix window rezise and integrated terminal
+mkdir --parents /var/home/"$user"/.var/app/com.vscodium.codium/config/VSCodium/User
+tee /var/home/"$user"/.var/app/com.vscodium.codium/config/VSCodium/User/settings.json >/dev/null <<EOF
+{
+    "window.menuBarVisibility":"toggle",
+    "window.customTitleBarVisibility":"auto",
+    "window.titleBarStyle": "custom",
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.profiles.linux": {
+    "bash": {
+      "path": "/app/bin/host-spawn",
+      "args": ["bash"],
+      "icon": "terminal-bash",
+      "overrideName": true
+    }
+  }
+}
+EOF

@@ -1,0 +1,7 @@
+#! /usr/bin/env bash
+
+# shellcheck disable=SC2154
+
+# layer packages
+rpm-ostree install --idempotent --apply-live --assumeyes "${packages[@]}"
+

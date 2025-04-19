@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# create dconf-update service
+tee /etc/systemd/system/dconf-update.service >/dev/null <<EOF
+[Unit]
+Description=Update the dconf database onboot
+Documentation=https://github.com/coreos/rpm-ostree/issues/1944
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/dconf update
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# enable service
+systemctl enable dconf-update.service

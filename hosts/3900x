@@ -1,0 +1,26 @@
+#! /usr/bin/env bash
+
+# shellcheck disable=SC2034,SC1090
+
+# host scripts
+scripts=(
+    'flatpak'
+    'dconf'
+    'sunshine'
+    'ssh'
+    'hide-firefox'
+)
+
+# flatpak
+flatpaks=(
+    'com.github.tchx84.Flatseal'
+    'org.gnome.Firmware'
+    'io.gitlab.librewolf-community'
+    'org.freedesktop.Platform.ffmpeg-full/x86_64/24.08'
+    'com.valvesoftware.Steam'
+)
+
+# ssh
+ssh_keys=(
+    'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINZLqJ1Xw8iKuq8iNkd+sDi8PzSELP/UIS6RnpQ1cYls me@xps-9305'
+)

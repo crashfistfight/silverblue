@@ -1,0 +1,45 @@
+#! /usr/bin/env bash
+
+# shellcheck disable=SC2154,SC1091
+
+# vars
+smb_config_path="/etc/samba/smb.conf"
+smb_share_config="/etc/samba/smb.conf.d/${smb_share_name}.conf"
+
+# ensure samba is configured
+source smb
+
+# create user and set samba password
+useradd --create-home --shell /bin/false "$smb_user"
+(echo "$smb_password"; echo "$smb_password") | smbpasswd -a -s "$smb_user"
+
+# create shared directory with proper permissions
+mkdir --parents "$smb_absolute_path"
+chmod --recursive 660 "$smb_absolute_path"
+chown --recursive "$smb_user":"$smb_user" "$smb_absolute_path"
+
+# configure selinux for samba
+semanage fcontext --add --type "samba_share_t" "$smb_absolute_path(/.*)?"
+restorecon -R "$smb_absolute_path"
+
+# update global samba conf to include share-specific config and ensure no duplicates
+if ! grep -Fxq "include = $smb_share_config" "$smb_config_path"; then
+    sed --in-place "s@\[global\]@\[global\]\ninclude = $smb_share_config@" "$smb_config_path"
+fi
+# create dir for additional samba share confs
+mkdir --parents /etc/samba/smb.conf.d
+
+# create cofig file for the specific share
+tee "$smb_share_config" > /dev/null <<EOF
+[${smb_share_name}]
+create mask = 0770
+force create mode = 770
+directory mask = 0770
+force directory mode = 770
+sync always = yes
+path = ${smb_absolute_path}
+write list = ${smb_user}
+EOF
+
+# cleanup temporary variables
+unset "$(compgen -v | grep 'smb_')"

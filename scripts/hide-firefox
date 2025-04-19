@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+
+# shellcheck disable=SC2154
+
+# create desktop file
+tee /var/home/"$user"/.local/share/applications/org.mozilla.firefox.desktop > /dev/null <<EOF
+[Desktop Entry]
+NoDisplay=true 
+Hidden=true
+EOF

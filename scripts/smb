@@ -1,0 +1,43 @@
+#! /usr/bin/env bash
+
+# install samba
+if ! rpm --query --all | grep --quiet "samba"; then
+    rpm-ostree install --idempotent --apply-live --assumeyes samba
+fi
+
+# create the main samba conf file if not present
+if [[ ! -f /etc/samba/smb.conf ]]; then
+    tee /etc/samba/smb.conf > /dev/null <<EOF
+[global]
+workgroup = SAMBA
+server string = secure samba server
+security = user
+map to guest = never
+encrypt passwords = yes
+smb encrypt = auto
+passdb backend = tdbsam
+log file = /var/log/samba/log.%m
+max log size = 1000
+logging = file
+min protocol = SMB2
+client min protocol = SMB2
+restrict anonymous = 2
+guest account = nobody
+invalid users = root
+socket options = TCP_NODELAY IPTOS_LOWDELAY SO_RCVBUF=8192 SO_SNDBUF=8192
+load printers = no
+printing = bsd
+printcap name = /dev/null
+disable spoolss = yes
+EOF
+fi
+
+# create dir for additional samba share confs
+mkdir --parents /etc/samba/smb.conf.d
+
+# open ports for samba
+firewall-cmd --add-service=samba --permanent --quiet
+firewall-cmd --reload --quiet
+
+# enable samba
+systemctl enable smb.service

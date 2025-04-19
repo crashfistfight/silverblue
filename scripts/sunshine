@@ -1,0 +1,18 @@
+#! /usr/bin/env bash
+
+# shellcheck disable=SC2154
+
+# enable copr
+curl --output-dir "/etc/yum.repos.d/" --remote-name \
+    https://copr.fedorainfracloud.org/coprs/lizardbyte/beta/repo/fedora-42/lizardbyte-beta-fedora-42.repo
+
+rpm-ostree refresh-md --force
+
+# install sunshine
+rpm-ostree install --idempotent --apply-live --assumeyes Sunshine
+
+# enable KMS capture
+tee /var/home/"$user"/.config/systemd/user/sunshine.service.d/override.conf > /dev/null <<EOF
+[Service]
+AmbientCapabilities=CAP_SYS_ADMIN
+EOF
